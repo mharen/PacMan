@@ -36,3 +36,5 @@ UpgradeLog*.XML
 UpgradeLog*.htm
 *.mdf
 *.ldf
+*.ncrunchsolution
+*.ncrunchproject
