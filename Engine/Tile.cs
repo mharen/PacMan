@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Engine
+﻿namespace Engine
 {
     public interface ITile
     {
@@ -18,7 +12,7 @@ namespace Engine
         public Position Position { get; private set; }
         public bool IsPassable { get { return false; }}
         public bool IsConsumable { get { return false; } }
-        
+
         public WallTile(Position position)
         {
             Position = position;
@@ -37,15 +31,10 @@ namespace Engine
         }
     }
 
-    public class FruitTile : ITile
+    public class FruitTile : NomTile
     {
-        public Position Position { get; private set; }
-        public bool IsPassable { get { return true; } }
-        public bool IsConsumable { get { return true; } }
-
-        public FruitTile(Position position)
+        public FruitTile(Position position) : base(position)
         {
-            Position = position;
         }
     }
 

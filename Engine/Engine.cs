@@ -67,8 +67,17 @@ namespace Engine
         public static Frame MovePlayer(Frame currentFrame, Guid playerId, Direction direction)
         {
             var currentPlayer = currentFrame.Players.ToList().Single(p => p.Id == playerId);
-            
+
             var nextPosition = NextPosition(currentPlayer.Position, direction);
+
+            if (currentFrame.Tiles
+                .Where(t => !t.IsPassable)
+                .Any(t => Equals(t.Position, nextPosition)))
+            {
+                // player can't move through unpassable tiles so they stay where they were
+                return currentFrame;
+            }
+
             var nextPlayer = NextPlayer(currentPlayer, nextPosition: nextPosition);
             var nextPlayers = currentFrame.Players.Where(p => p.Id != playerId).ToList();
             

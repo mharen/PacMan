@@ -35,13 +35,14 @@ namespace Engine.Tests
             var wallTile = new WallTile(new Position(0, 0));
             var frame = new Frame(tiles: new List<ITile> {wallTile});
             var player = DefaultPlayer;
+            // ReSharper disable once NotResolvedInText
             var expected = new ArgumentOutOfRangeException("player");
 
             // act
             var actual = Assert.Throws<ArgumentOutOfRangeException>(() => Engine.AddPlayer(frame, player));
 
             // assert
-            Assert.AreEqual("player", actual.ParamName);
+            Assert.AreEqual(expected.ParamName, actual.ParamName);
         }
 
         [Test]
@@ -69,7 +70,7 @@ namespace Engine.Tests
             var expected = new Position(0, 1);
 
             // act / assert
-            MovePlayerTester(DefaultPlayer, direction, expected);
+            MovePlayerTester(DefaultFrame, DefaultPlayer, direction, expected);
         }
 
         [Test]
@@ -80,7 +81,7 @@ namespace Engine.Tests
             var expected = new Position(1, 0);
 
             // act / assert
-            MovePlayerTester(DefaultPlayer, direction, expected);
+            MovePlayerTester(DefaultFrame, DefaultPlayer, direction, expected);
         }
         [Test]
         public void MovePlayerSouth()
@@ -90,7 +91,7 @@ namespace Engine.Tests
             var expected = new Position(0, -1);
 
             // act / assert
-            MovePlayerTester(DefaultPlayer, direction, expected);
+            MovePlayerTester(DefaultFrame, DefaultPlayer, direction, expected);
         }
         [Test]
         public void MovePlayerWest()
@@ -100,13 +101,28 @@ namespace Engine.Tests
             var expected = new Position(-1, 0);
 
             // act / assert
-            MovePlayerTester(DefaultPlayer, direction, expected);
+            MovePlayerTester(DefaultFrame, DefaultPlayer, direction, expected);
         }
 
-        private static void MovePlayerTester(Player player, Direction direction, Position expected)
+        [Test]
+        public void MovePlayerIntoWallYieldsNoMovement()
+        {
+            // arrange
+            var wallTile = new WallTile(new Position(0, 1));
+            var frame = new Frame(
+                players: new List<Player> { DefaultPlayer }, 
+                tiles: new List<ITile> { wallTile });
+            const Direction direction = Direction.North;
+            var expected = new Position(0, 0);
+
+            // act / assert
+            MovePlayerTester(frame, DefaultPlayer, direction, expected); 
+        }
+
+        private static void MovePlayerTester(Frame frame, Player player, Direction direction, Position expected)
         {
             // act
-            var nextFrame = Engine.MovePlayer(DefaultFrame, player.Id, direction);
+            var nextFrame = Engine.MovePlayer(frame, player.Id, direction);
             var actual = nextFrame.Players.Single(p => p.Id == player.Id).Position;
 
             // assert
