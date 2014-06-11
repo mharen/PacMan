@@ -29,6 +29,22 @@ namespace Engine.Tests
         }
 
         [Test]
+        public void AddingPlayerToUnpassableSpaceThrows()
+        {
+            // arrange
+            var wallTile = new WallTile(new Position(0, 0));
+            var frame = new Frame(tiles: new List<ITile> {wallTile});
+            var player = DefaultPlayer;
+            var expected = new ArgumentOutOfRangeException("player");
+
+            // act
+            var actual = Assert.Throws<ArgumentOutOfRangeException>(() => Engine.AddPlayer(frame, player));
+
+            // assert
+            Assert.AreEqual("player", actual.ParamName);
+        }
+
+        [Test]
         public void AddingPlayerDoesNotIncrementTick()
         {
             // arrange

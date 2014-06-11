@@ -44,6 +44,13 @@ namespace Engine
 
         public static Frame AddPlayer(Frame currentFrame, Player player)
         {
+            if (currentFrame.Tiles
+                .Where(t => !t.IsPassable)
+                .Any(t => Equals(t.Position, player.Position)))
+            {
+                throw new ArgumentOutOfRangeException("player", "Player cannot be added to unpassable tile");
+            }
+
             var nextPlayers = currentFrame.Players.ToList();
             nextPlayers.Add(player);
 
