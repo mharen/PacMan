@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 
 namespace Engine
 {
@@ -19,7 +20,7 @@ namespace Engine
 
         private static Player NextPlayer(
             Player current, 
-            Position nextPosition,
+            Position nextPosition = null,
             string nextName = null,
             int? nextPoints = null)
         {
@@ -83,29 +84,47 @@ namespace Engine
         {
             var currentPlayers = currentFrame.Players.ToList();
 
+            // resolve ghosts vs. pacmans
             var pacmans = currentPlayers.OfType<PacmanPlayer>().ToList();
             var ghosts = currentPlayers.OfType<GhostPlayer>().ToList();
 
-            var destroyedPacmans = pacmans.Join(ghosts, p => p.Position, g => g.Position, (p, g) => p);
-            var survivingPacmans = pacmans.Except(destroyedPacmans).ToList();
+            // players on the same tile
+            var conflictedPlayers = 
+                from p in pacmans
+                join g in ghosts on p.Position equals g.Position
+                select new {Pacman = p, Ghost = g};
 
-            // always return the ghosts
-            var players = new List<Player>(ghosts);
+            // survivors
+            var conflictSurvivors =
+                from cp in conflictedPlayers
+                let pointsToVictor = cp.Pacman.Points + cp.Ghost.Points
+                let victor = cp.Pacman.IsPoweredUp? (Player)cp.Pacman : (Player)cp.Ghost
+                select NextPlayer(victor, nextPoints: pointsToVictor);
 
-            // and the surviving pacmans after feeding them
-            players.AddRange(
-                from pacman in survivingPacmans
-                let points = currentFrame.Noms.Where(n => Equals(n.Position, pacman.Position)).Sum(n => n.Points)
-                select NextPacmanPlayer(pacman, nextPoints: pacman.Points + points));
+            // players not on the same tile as anyone else
+            var nonconflictedPlayers = currentPlayers
+                .Except(conflictedPlayers.Select(cp => cp.Ghost))
+                .Except(conflictedPlayers.Select(cp => cp.Pacman));
 
-            // return the uneaten noms
-            var destroyedNoms = currentFrame.Noms.Where(n => survivingPacmans.Any(p => Equals(p.Position, n.Position)));
-            var noms = currentFrame.Noms.Except(destroyedNoms).ToList();
+            // battle results
+            var allSurvivors = conflictSurvivors.Union(nonconflictedPlayers);
+            
+            // resolve pacmans vs. noms
+            var fedSurvivors =
+                from p in allSurvivors
+                let nomPoints = p is GhostPlayer
+                    ? 0
+                    : currentFrame.Noms.Where(n => Equals(n.Position, p.Position)).Sum(n => n.Points)
+                select NextPlayer(p, nextPoints: p.Points + nomPoints);
+
+            // find the uneaten noms
+            var noms = currentFrame.Noms
+                .Where(n => !fedSurvivors.OfType<PacmanPlayer>().Any(p => Equals(p.Position, n.Position)));
 
             return NextFrame(
                 currentFrame,
-                nextPlayers: players,
-                nextNoms: noms);
+                nextPlayers: fedSurvivors.ToList(),
+                nextNoms: noms.ToList());
         }
 
         public static Frame AddPlayer(Frame currentFrame, Player player)
