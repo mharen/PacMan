@@ -5,17 +5,20 @@ namespace Engine
     public class Frame
     {
         public long Tick { get; private set; }
-        public IReadOnlyList<ITile> Tiles { get; private set; }
         public IReadOnlyList<Player> Players { get; private set; }
+        public IReadOnlyList<Tile> Tiles { get; private set; }
+        public IReadOnlyList<Nom> Noms { get; private set; }
 
         public Frame(
             long tick = 0, 
             IReadOnlyList<Player> players = null, 
-            IReadOnlyList<ITile> tiles = null)
+            IReadOnlyList<Tile> tiles = null,
+            IReadOnlyList<Nom> noms = null)
         {
             Tick = tick;
-            Tiles = tiles ?? new List<ITile>();
             Players = players ?? new List<Player>();
+            Tiles = tiles ?? new List<Tile>();
+            Noms = noms ?? new List<Nom>();
         }
     }
 }

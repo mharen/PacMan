@@ -1,52 +1,26 @@
 ﻿namespace Engine
 {
-    public interface ITile
-    {
-        Position Position { get; }
-        bool IsPassable { get; }
-        bool IsConsumable { get; }
-    }
-
-    public class WallTile : ITile
+    public abstract class Tile
     {
         public Position Position { get; private set; }
-        public bool IsPassable { get { return false; }}
-        public bool IsConsumable { get { return false; } }
 
-        public WallTile(Position position)
+        protected Tile(Position position)
         {
             Position = position;
         }
     }
 
-    public class NomTile : ITile
+    public class WallTile : Tile
     {
-        public Position Position { get; private set; }
-        public bool IsPassable { get { return true; } }
-        public bool IsConsumable { get { return true; } }
-
-        public NomTile(Position position)
-        {
-            Position = position;
-        }
-    }
-
-    public class FruitTile : NomTile
-    {
-        public FruitTile(Position position) : base(position)
+        public WallTile(Position position) : base(position)
         {
         }
     }
 
-    public class EmptyTile : ITile
+    public class EmptyTile : Tile
     {
-        public Position Position { get; private set; }
-        public bool IsPassable { get { return true; } }
-        public bool IsConsumable { get { return false; } }
-
-        public EmptyTile(Position position)
+        public EmptyTile(Position position) : base(position)
         {
-            Position = position;
         }
     }
 }

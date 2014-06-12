@@ -9,7 +9,7 @@ namespace Engine.Tests
     public class Tests
     {
         private static readonly Position DefaultPosition = new Position(0, 0);
-        private static readonly Player DefaultPlayer = new Player(Guid.NewGuid(), "Michael", DefaultPosition);
+        private static readonly Player DefaultPlayer = new PacmanPlayer(Guid.NewGuid(), "Michael", DefaultPosition);
         private static readonly Frame DefaultFrame = new Frame(players: new List<Player> { DefaultPlayer });
 
         [Test]
@@ -33,7 +33,7 @@ namespace Engine.Tests
         {
             // arrange
             var wallTile = new WallTile(new Position(0, 0));
-            var frame = new Frame(tiles: new List<ITile> {wallTile});
+            var frame = new Frame(tiles: new List<Tile> {wallTile});
             var player = DefaultPlayer;
             // ReSharper disable once NotResolvedInText
             var expected = new ArgumentOutOfRangeException("player");
@@ -111,7 +111,7 @@ namespace Engine.Tests
             var wallTile = new WallTile(new Position(0, 1));
             var frame = new Frame(
                 players: new List<Player> { DefaultPlayer }, 
-                tiles: new List<ITile> { wallTile });
+                tiles: new List<Tile> { wallTile });
             const Direction direction = Direction.North;
             var expected = new Position(0, 0);
 
