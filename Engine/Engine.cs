@@ -1,21 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 
 namespace Engine
 {
-    public class Engine
+    public static class Engine
     {
         private static Frame NextFrame(Frame current, 
             long? nextTick = null, 
             IReadOnlyList<Player> nextPlayers = null,
-            IReadOnlyList<Nom> nextNoms = null)
+            IReadOnlyList<Nom> nextNoms = null,
+            IReadOnlyList<Tile> nextTiles = null)
         {
             return new Frame(
                 tick: nextTick ?? current.Tick,
                 players: nextPlayers ?? current.Players,
-                noms: nextNoms ?? current.Noms);
+                noms: nextNoms ?? current.Noms,
+                tiles: nextTiles ?? current.Tiles);
         }
 
         private static Player NextPlayer(
@@ -68,11 +69,11 @@ namespace Engine
             switch (direction)
             {
                 case Direction.North:
-                    return new Position(current.X, current.Y + 1);
+                    return new Position(current.X, current.Y - 1);
                 case Direction.East:
                     return new Position(current.X + 1, current.Y);
                 case Direction.South:
-                    return new Position(current.X, current.Y - 1);
+                    return new Position(current.X, current.Y + 1);
                 case Direction.West:
                     return new Position(current.X - 1, current.Y);
                 default:
@@ -80,7 +81,7 @@ namespace Engine
             }
         }
 
-        public static Frame ResolveCollisions(Frame currentFrame)
+        public static Frame ResolveCollisions(this Frame currentFrame)
         {
             var currentPlayers = currentFrame.Players.ToList();
 
@@ -127,7 +128,7 @@ namespace Engine
                 nextNoms: noms.ToList());
         }
 
-        public static Frame AddPlayer(Frame currentFrame, Player player)
+        public static Frame AddPlayer(this Frame currentFrame, Player player)
         {
             if (currentFrame.Tiles
                 .OfType<WallTile>()
@@ -144,7 +145,16 @@ namespace Engine
                 nextPlayers: nextPlayers);
         }
 
-        public static Frame AdvanceTick(Frame current)
+        public static Frame RemovePlayer(this Frame currentFrame, string id)
+        {
+            var nextPlayers = currentFrame.Players.Where(p=>p.Id != id).ToList();
+
+            return NextFrame(
+                currentFrame,
+                nextPlayers: nextPlayers);
+        }
+
+        public static Frame AdvanceTick(this Frame current)
         {
             var players = current.Players
                 .Select(p =>
@@ -168,7 +178,7 @@ namespace Engine
                 nextPlayers: players);
         }
 
-        public static Frame MovePlayer(Frame currentFrame, Guid playerId, Direction direction)
+        public static Frame MovePlayer(this Frame currentFrame, string playerId, Direction direction)
         {
             var currentPlayer = currentFrame.Players.ToList().Single(p => p.Id == playerId);
 

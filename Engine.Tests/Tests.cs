@@ -9,7 +9,7 @@ namespace Engine.Tests
     public class Tests
     {
         private static readonly Position DefaultPosition = new Position(0, 0);
-        private static readonly Player DefaultPlayer = new PacmanPlayer(Guid.NewGuid(), "Michael", DefaultPosition);
+        private static readonly Player DefaultPlayer = new PacmanPlayer("1", "Michael", DefaultPosition);
         private static readonly Frame DefaultFrame = new Frame(players: new List<Player> { DefaultPlayer });
 
         [Test]
@@ -67,7 +67,7 @@ namespace Engine.Tests
         {
             // arrange
             const Direction direction = Direction.North;
-            var expected = new Position(0, 1);
+            var expected = new Position(0, -1);
 
             // act / assert
             MovePlayerTester(DefaultFrame, DefaultPlayer, direction, expected);
@@ -88,7 +88,7 @@ namespace Engine.Tests
         {
             // arrange
             const Direction direction = Direction.South;
-            var expected = new Position(0, -1);
+            var expected = new Position(0, 1);
 
             // act / assert
             MovePlayerTester(DefaultFrame, DefaultPlayer, direction, expected);
@@ -112,7 +112,7 @@ namespace Engine.Tests
             var frame = new Frame(
                 players: new List<Player> { DefaultPlayer }, 
                 tiles: new List<Tile> { wallTile });
-            const Direction direction = Direction.North;
+            const Direction direction = Direction.South;
             var expected = new Position(0, 0);
 
             // act / assert

@@ -11,9 +11,9 @@ namespace Engine.Tests
     public class CollisionsTests
     {
         private static readonly Position DefaultPosition = new Position(0, 0);
-        private static readonly Player DefaultPacman = new PacmanPlayer(Guid.NewGuid(), "Michael", DefaultPosition);
-        private static readonly Player DefaultPoweredUpPacman = new PacmanPlayer(Guid.NewGuid(), "MICHAEL", DefaultPosition, powerUpTicksRemaining: 1);
-        private static readonly Player DefaultGhost = new GhostPlayer(Guid.NewGuid(), "leahciM", DefaultPosition);
+        private static readonly Player DefaultPacman = new PacmanPlayer("1", "Michael", DefaultPosition);
+        private static readonly Player DefaultPoweredUpPacman = new PacmanPlayer("2", "MICHAEL", DefaultPosition, powerUpTicksRemaining: 1);
+        private static readonly Player DefaultGhost = new GhostPlayer("3", "leahciM", DefaultPosition);
         private static readonly Nom DefaultNom = new CherryNom(DefaultPosition);
 
         private static readonly Frame DefaultFrame =
@@ -128,7 +128,7 @@ namespace Engine.Tests
         public void GhostsRemainWhenTheyCollideWithEachOther()
         {
             // arrange
-            var frame = new Frame(players: new List<Player> { DefaultGhost, new GhostPlayer(Guid.NewGuid(), "Leahcim2", DefaultPosition) });
+            var frame = new Frame(players: new List<Player> { DefaultGhost, new GhostPlayer("4", "Leahcim2", DefaultPosition) });
             const int expected = 2;
 
             // act
@@ -146,7 +146,7 @@ namespace Engine.Tests
             var frame = new Frame(players: new List<Player>
                                            {
                                                DefaultGhost,
-                                               new GhostPlayer(Guid.NewGuid(), "Leahcim2", DefaultPosition),
+                                               new GhostPlayer("5", "Leahcim2", DefaultPosition),
                                                DefaultPacman
                                            });
             const int expected = 2;

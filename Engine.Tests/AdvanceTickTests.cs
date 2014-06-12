@@ -14,7 +14,7 @@ namespace Engine.Tests
         public void VeryPoweredUpPacmanStaysPoweredUpAfterATick()
         {
             // arrange
-            var player = new PacmanPlayer(Guid.NewGuid(), "Michael", DefaultPosition, powerUpTicksRemaining: 2);
+            var player = new PacmanPlayer("1", "Michael", DefaultPosition, powerUpTicksRemaining: 2);
             var frame = new Frame(players: new List<Player> { player });
 
             const bool expected = true;
@@ -31,7 +31,7 @@ namespace Engine.Tests
         public void BarelyPoweredUpPacmanReturnsToNormalAfterATick()
         {
             // arrange
-            var player = new PacmanPlayer(Guid.NewGuid(), "Michael", DefaultPosition, powerUpTicksRemaining: 1);
+            var player = new PacmanPlayer("1", "Michael", DefaultPosition, powerUpTicksRemaining: 1);
             var frame = new Frame(players: new List<Player> { player });
 
             const bool expected = false;
