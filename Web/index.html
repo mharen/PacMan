@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>PacMan</title>
+    <style type="text/css">
+        h2 {
+            font-size: 12px;
+            margin: 20px 0 10px 0;
+            padding: 0;
+        }
+
+        .container {
+            margin: 10px;
+            font-family: Consolas, Courier, 'Lucida Console', monospace;
+        }
+
+        #debug {
+            color: #aaa;
+            padding-top: 20px;
+        }
+            #debug:hover {
+                color: #000;
+            }
+            #debug ul {
+                list-style: none;
+                padding: 0;margin: 0;
+            }
+            #debug #lastMessage, #debug #history {
+                white-space: pre;
+                font-size: 10px;
+            }
+
+        #board {
+            position: relative;
+            height: 400px;
+            width: 400px;
+        }
+
+        .tile {
+            position: absolute;
+            background-color: #99CCFF;
+            height: 50px;
+            width: 50px;
+        }
+        .tile-player {
+            background-color: rgba(20,181,0,.75) ;
+            border-radius: 50%;
+        }
+        kbd {
+            padding: .1em .6em;
+            border: 1px solid #ccc;
+            font-size: 11px;
+            font-family: Arial,Helvetica,sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            -moz-box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+            -webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.2),0 0 0 2px #fff inset;
+            border-radius: 3px;
+            display: inline-block;
+            margin: 0 .1em;
+            text-shadow: 0 1px 0 #fff;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+    </style>
+    <link rel="shortcut icon" href="favicon.ico" />
+</head>
+<body>
+    <div class="container">
+        <div id="board">
+        </div>
+        <div id="help">
+            <h2>Instructions</h2>
+            <kbd>&#8592;</kbd> <kbd>&#8593;</kbd> <kbd>&#8594;</kbd> <kbd>&#8595;</kbd> 
+            or <kbd>a</kbd> <kbd>w</kbd> <kbd>d</kbd> <kbd>s</kbd>
+        </div>
+        <div id="debug">
+            <h2>Last Message</h2>
+            <div id="lastMessage"></div>
+            <h2>History</h2>
+            <ul id="history"></ul>
+        </div>
+    </div>
+    <script src="Scripts/jquery-2.1.1.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.0.3.min.js"></script>
+    <script src="signalr/hubs"></script>
+    <script type="text/javascript">
+        $(function () {
+            var colors = [
+                'rgba(31,119,180,.75)', 'rgba(174,199,232,.75)', 'rgba(255,127,14,.75)', 'rgba(255,187,120,.75)', 'rgba(44,160,44,.75)',
+                'rgba(152,223,138,.75)', 'rgba(214,39,40,.75)', 'rgba(255,152,150,.75)', 'rgba(148,103,189,.75)', 'rgba(197,176,213,.75)',
+                'rgba(140,86,75,.75)', 'rgba(196,156,148,.75)', 'rgba(227,119,194,.75)', 'rgba(247,182,210,.75)', 'rgba(127,127,127,.75)',
+                'rgba(199,199,199,.75)', 'rgba(188,189,34,.75)', 'rgba(219,219,141,.75)', 'rgba(23,190,207,.75)', 'rgba(158,218,229,.75)'
+            ];
+
+            var makeCell = function (x, y, type) {
+                var left = 50 * x;
+                var top = 50 * y;
+                console.log(left, top);
+                return $('<div class="tile"/>').css({ top: top + 'px', left: left + 'px' }).addClass('tile-' + type);
+            };
+
+            var game = $.connection.gameHub;
+
+            game.client.updateFrame = function (frame) {
+                var message = JSON.stringify(frame);
+                $('#lastMessage').text(message);
+                $('#history').append('<li>' + message + '</li>');
+
+                // rebuild the whole board because deltas are more work than I have time for
+                var $board = $('#board').empty();
+
+                if (frame) {
+                    for (var i = 0; i < frame.Tiles.length; ++i) {
+                        var tile = frame.Tiles[i];
+                        $board.append(makeCell(tile.Position.X, tile.Position.Y, 'tile'));
+                    }
+
+                    for (var i = 0; i < frame.Players.length; ++i) {
+                        var player = frame.Players[i];
+                        var cell = makeCell(player.Position.X, player.Position.Y, 'player');
+
+                        // give each player a consistent, but mostly unique color
+                        var id = parseInt(player.Name);
+                        cell.css('background-color', colors[id % 20]);
+
+                        $board.append(cell);
+                    }
+                }
+            };
+
+            // start the connection
+            $.connection.hub.start().done(function () {
+                // listen for movement events
+                $(document).keydown(function (e) {
+                    var message;
+                    switch (e.which) {
+                        case 87: // w
+                        case 104: // numpad 8
+                        case 38: // up arrow
+                            message = "North";
+                            break;
+                        case 68: // d
+                        case 102: // numpad 6
+                        case 39: // right arrow
+                            message = "East";
+                            break;
+                        case 83: // s
+                        case 98: // numpad 2
+                        case 40: // down arrow
+                            message = "South";
+                            break;
+                        case 65: // a
+                        case 100: // numpad 4
+                        case 37: // left arrow
+                            message = "West";
+                            break;
+                        default:
+                            message = null;
+                    }
+                    if (message) {
+                        game.server.send(message);
+                        // don't actually scroll the screen
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
