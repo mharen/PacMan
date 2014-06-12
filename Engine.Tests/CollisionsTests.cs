@@ -138,5 +138,25 @@ namespace Engine.Tests
             // assert
             Assert.AreEqual(expected, actual);
         }
+
+        [Test]
+        public void TwoGhostsRemainWhenCollideWithPacman()
+        {
+            // arrange
+            var frame = new Frame(players: new List<Player>
+                                           {
+                                               DefaultGhost,
+                                               new GhostPlayer(Guid.NewGuid(), "Leahcim2", DefaultPosition),
+                                               DefaultPacman
+                                           });
+            const int expected = 2;
+
+            // act
+            var result = Engine.ResolveCollisions(frame);
+            var actual = result.Players.Count();
+
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
     }
 }
