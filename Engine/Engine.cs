@@ -23,16 +23,17 @@ namespace Engine
             Player current, 
             Position nextPosition = null,
             string nextName = null,
-            int? nextPoints = null)
+            int? nextPoints = null,
+            Direction? nextFacing = null)
         {
             var pacman = current as PacmanPlayer;
             if (pacman != null)
             {
-                return NextPacmanPlayer(pacman, nextName, nextPosition, nextPoints);
+                return NextPacmanPlayer(pacman, nextName, nextPosition, nextPoints, nextFacing: nextFacing);
             }
 
             var ghost = (GhostPlayer) current;
-            return NextGhostPlayer(ghost, nextName, nextPosition, nextPoints);
+            return NextGhostPlayer(ghost, nextName, nextPosition, nextPoints, nextFacing);
         }
 
         private static PacmanPlayer NextPacmanPlayer(
@@ -40,14 +41,16 @@ namespace Engine
             string nextName = null,
             Position nextPosition = null,
             int? nextPoints = null,
-            int? nextPowerUpTicksRemaining = null)
+            int? nextPowerUpTicksRemaining = null,
+            Direction? nextFacing = null)
         {
             return new PacmanPlayer(
                 current.Id,
                 nextName ?? current.Name,
                 nextPosition ?? current.Position,
                 nextPoints ?? current.Points,
-                nextPowerUpTicksRemaining ?? current.PowerUpTicksRemaining);
+                nextPowerUpTicksRemaining ?? current.PowerUpTicksRemaining,
+                nextFacing ?? current.Facing);
 
         }
 
@@ -55,13 +58,15 @@ namespace Engine
             Player current,
             string nextName = null,
             Position nextPosition = null,
-            int? nextPoints = null)
+            int? nextPoints = null,
+            Direction? nextFacing = null)
         {
             return new GhostPlayer(
                     current.Id,
                     nextName ?? current.Name,
                     nextPosition ?? current.Position,
-                    nextPoints ?? current.Points);
+                    nextPoints ?? current.Points,
+                    nextFacing ?? current.Facing);
         }
 
         private static Position NextPosition(Position current, Direction direction)
@@ -90,10 +95,11 @@ namespace Engine
             var ghosts = currentPlayers.OfType<GhostPlayer>().ToList();
 
             // players on the same tile
-            var conflictedPlayers = 
+            var conflictedPlayers = (
                 from p in pacmans
                 join g in ghosts on p.Position equals g.Position
-                select new {Pacman = p, Ghost = g};
+                select new {Pacman = p, Ghost = g}
+                ).ToList();
 
             // survivors
             var conflictSurvivors =

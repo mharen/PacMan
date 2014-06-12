@@ -8,13 +8,15 @@ namespace Engine
         public string Name { get; private set; }
         public Position Position { get; private set; }
         public int Points { get; private set; }
+        public Direction Facing { get; private set; }
 
-        protected Player(string id, string name, Position position, int points = 0)
+        protected Player(string id, string name, Position position, int points = 0, Direction facing = Direction.East)
         {
             Id = id;
             Name = name;
             Position = position;
             Points = points;
+            Facing = facing;
         }
     }
 
@@ -23,8 +25,8 @@ namespace Engine
         public int PowerUpTicksRemaining { get; private set; }
         public bool IsPoweredUp { get { return PowerUpTicksRemaining > 0; }}
 
-        public PacmanPlayer(string id, string name, Position position, int points = 0, int powerUpTicksRemaining = 0)
-            : base(id, name, position, points)
+        public PacmanPlayer(string id, string name, Position position, int points = 0, int powerUpTicksRemaining = 0, Direction facing = Direction.East)
+            : base(id, name, position, points, facing)
         {
             PowerUpTicksRemaining = powerUpTicksRemaining;
         }
@@ -32,7 +34,8 @@ namespace Engine
 
     public class GhostPlayer : Player
     {
-        public GhostPlayer(string id, string name, Position position, int points = 0) : base(id, name, position, points)
+        public GhostPlayer(string id, string name, Position position, int points = 0, Direction facing = Direction.East) 
+            : base(id, name, position, points, facing)
         {
         }
     }
