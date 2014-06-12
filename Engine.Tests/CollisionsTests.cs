@@ -18,8 +18,8 @@ namespace Engine.Tests
 
         private static readonly Frame DefaultFrame =
             new Frame(
-                players: new List<Player> {DefaultPacman},
-                noms: new List<Nom> {DefaultNom});
+                players: new List<Player> { DefaultPacman },
+                noms: new List<Nom> { DefaultNom });
 
         [Test]
         public void FruitDisappearsWhenEaten()
@@ -53,7 +53,7 @@ namespace Engine.Tests
         public void PacmanDisappearsWhenCollidesWithGhost()
         {
             // arrange
-            var frame = new Frame(players: new List<Player> {DefaultPacman, DefaultGhost});
+            var frame = new Frame(players: new List<Player> { DefaultPacman, DefaultGhost });
             const int expected = 0;
 
             // act
@@ -104,6 +104,36 @@ namespace Engine.Tests
             // act
             var result = Engine.ResolveCollisions(frame);
             var actual = result.Players.Count(p => p.Id == DefaultPoweredUpPacman.Id);
+
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void PacmenRemainWhenTheyCollideWithEachOther()
+        {
+            // arrange
+            var frame = new Frame(players: new List<Player> { DefaultPoweredUpPacman, DefaultPacman });
+            const int expected = 2;
+
+            // act
+            var result = Engine.ResolveCollisions(frame);
+            var actual = result.Players.Count();
+
+            // assert
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
+        public void GhostsRemainWhenTheyCollideWithEachOther()
+        {
+            // arrange
+            var frame = new Frame(players: new List<Player> { DefaultGhost, new GhostPlayer(Guid.NewGuid(), "Leahcim2", DefaultPosition) });
+            const int expected = 2;
+
+            // act
+            var result = Engine.ResolveCollisions(frame);
+            var actual = result.Players.Count();
 
             // assert
             Assert.AreEqual(expected, actual);
